@@ -6,8 +6,7 @@ use std::sync::mpsc;
 //pour le multithread
 use std::thread;
 
-const LOCAL: &str = "127.0.0.1:6000";
-const MSG_SIZE: usize = 32;
+//const MSG_SIZE: usize = 32;
 
 //fonction sleep
 fn sleep() {
@@ -16,7 +15,7 @@ fn sleep() {
 
 fn main() {
     //création d'un TcpListener à 127.0.0.1:6000
-    let listener = TcpListener::bind(LOCAL).expect("Failed to create a listener");
+    let listener = TcpListener::bind("127.0.0.1:6000").expect("Failed to create a listener");
     //le nonblocking permet de rentrer dans un mode d'aacceptation non bloquant,
     //ce qui permet de le laisser constament à l'écoute de nouveau message
     listener.set_nonblocking(true).expect("Failed to initialize non-blocking");
@@ -40,7 +39,7 @@ fn main() {
             //This example also shows how to use move, in order to give ownership of values to a thread.
             thread::spawn(move || loop {
                 //création d'un vecteur qui contiendra le message
-                let mut buff = vec![0; MSG_SIZE];
+                let mut buff = vec![0; 32];
 
                 //le message sera lu dans le buffer
                 match socket.read_exact(&mut buff) {
@@ -49,7 +48,7 @@ fn main() {
                         //on divise le buffer avec les espaces pour avoir un slice de string
                         let msg = buff.into_iter().take_while(|&x| x != 0).collect::<Vec<_>>();
                         //on transforme ce slice en une seule string
-                        let msg = String::from_utf8(msg).expect("Message invalide");
+                        let msg = String::from_utf8(msg).expect("Invalid message");
 
                         //on affiche le message
                         println!("{}: {:?}", addr, msg);
@@ -75,7 +74,7 @@ fn main() {
                 //transformation du message en bytes
                 let mut buff = msg.clone().into_bytes();
                 //resize du buffer
-                buff.resize(MSG_SIZE, 0);
+                buff.resize(32, 0);
 
                 //écriture du buffer dans un vecteur
                 client.write_all(&buff).map(|_| client).ok()
