@@ -9,6 +9,11 @@ use std::thread;
 const LOCAL: &str = "127.0.0.1:6000";
 const MSG_SIZE: usize = 32;
 
+//fonction sleep
+fn sleep() {
+    thread::sleep(::std::time::Duration::from_millis(200));
+}
+
 fn main() {
     //création d'un TcpListener à 127.0.0.1:6000
     let listener = TcpListener::bind(LOCAL).expect("Failed to create a listener");
@@ -58,6 +63,24 @@ fn main() {
                         println!("closing connection with: {}", addr);
                         break;
                     }
-            }
+                }
+                //pause du thread
+                sleep();
+            });
+        }
+        //réception de message dans le channes (rx)
+        if let Ok(msg) = rx.try_recv() {
+            //boucle à travers les clients
+            clients = clients.into_iter().filter_map(|mut client| {
+                //transformation du message en bytes
+                let mut buff = msg.clone().into_bytes();
+                //resize du buffer
+                buff.resize(MSG_SIZE, 0);
+
+                //écriture du buffer dans un vecteur
+                client.write_all(&buff).map(|_| client).ok()
+            }).collect::<Vec<_>>();
+        }
+        sleep();
     }
 }
