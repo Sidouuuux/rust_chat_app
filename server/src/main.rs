@@ -48,8 +48,16 @@ fn main() {
 
                         //on affiche le message
                         println!("{}: {:?}", addr, msg);
-                        
+                        //on envoie le message au receveur grace au transmetteur
+                        tx.send(msg).expect("Failed to send the message");
                     },
+                    //si on a une erreur non bloquante, on continue
+                    Err(ref err) if err.kind() == ErrorKind::WouldBlock => (),
+                    //si l'erreur envoyé est bloquante, on coupe la connexion
+                    Err(_) => {
+                        println!("closing connection with: {}", addr);
+                        break;
+                    }
             }
     }
 }
