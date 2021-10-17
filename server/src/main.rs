@@ -16,4 +16,40 @@ fn main() {
     //ce qui permet de le laisser constament à l'écoute de nouveau message
     listener.set_nonblocking(true).expect("Failed to initialize non-blocking");
 
+    //liste de tout les clients dans un vecteur
+    let mut clients = vec![];
+    //initiation du channel en type string
+    let (tx, rx) = mpsc::channel::<String>();
+
+    loop{
+        //vérifie l'acceptation de la connection
+        if let Ok((mut socket, addr)) = listener.accept() {
+            println!("Client : {}", addr);
+
+            //clone du transmetteur
+            let tx = tx.clone();
+
+            //on clone le socket pour l'ajouter aux clients
+            clients.push(socket.try_clone().expect("Failed to clone the client socket"));
+
+            //This example also shows how to use move, in order to give ownership of values to a thread.
+            thread::spawn(move || loop {
+                //création d'un vecteur qui contiendra le message
+                let mut buff = vec![0; MSG_SIZE];
+
+                //le message sera lu dans le buffer
+                match socket.read_exact(&mut buff) {
+                    //si la lecturre n'a pas d'erreur
+                    Ok(_) => {
+                        //on divise le buffer avec les espaces pour avoir un slice de string
+                        let msg = buff.into_iter().take_while(|&x| x != 0).collect::<Vec<_>>();
+                        //on transforme ce slice en une seule string
+                        let msg = String::from_utf8(msg).expect("Message invalide");
+
+                        //on affiche le message
+                        println!("{}: {:?}", addr, msg);
+                        
+                    },
+            }
+    }
 }
