@@ -46,10 +46,10 @@ fn main() {
         io::stdin().read_line(&mut buff).expect("Failed to read input");
 
         let msg = buff.trim().to_string();
-        #[test]
+        /*#[test]
         fn exploration() {
             //assert!(re.is_match(msg));
-        }
+        }*/
         println!("{:?}", re.is_match(&msg as &str));
         if !(re.is_match(&msg as &str)){
             println!("Le message n'est pas valide");
