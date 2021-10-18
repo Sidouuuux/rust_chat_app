@@ -14,6 +14,7 @@ fn sleep() {
 }
 
 fn main() {
+    let mut message: (&str, &str, i8) = ("Brad", "Mass", 37);
     //création d'un TcpListener à 127.0.0.1:6000
     let listener = TcpListener::bind("127.0.0.1:6000").expect("Failed to create a listener");
     //le nonblocking permet de rentrer dans un mode d'aacceptation non bloquant,
